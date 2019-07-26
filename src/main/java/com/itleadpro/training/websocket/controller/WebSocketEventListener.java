@@ -2,7 +2,6 @@ package com.itleadpro.training.websocket.controller;
 
 import com.itleadpro.training.websocket.model.ChatMessage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -11,34 +10,34 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import static org.slf4j.LoggerFactory.*;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class WebSocketEventListener {
 
-    private static final Logger logger = getLogger(WebSocketEventListener.class);
+	private static final Logger logger = getLogger(WebSocketEventListener.class);
 
-    @Autowired
-    private SimpMessageSendingOperations messagingTemplate;
+	@Autowired
+	private SimpMessageSendingOperations messagingTemplate;
 
-    @EventListener
-    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        logger.info("Received a new web socket connection");
-    }
+	@EventListener
+	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+		logger.info("Received a new web socket connection");
+	}
 
-    @EventListener
-    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+	@EventListener
+	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
-        if(username != null) {
-            logger.info("User Disconnected : " + username);
+		String username = (String) headerAccessor.getSessionAttributes().get("username");
+		if (username != null) {
+			logger.info("User Disconnected : " + username);
 
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setType(ChatMessage.MessageType.LEAVE);
-            chatMessage.setSender(username);
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setType(ChatMessage.MessageType.LEAVE);
+			chatMessage.setSender(username);
 
-            messagingTemplate.convertAndSend("/topic/public", chatMessage);
-        }
-    }
+			messagingTemplate.convertAndSend("/topic/public", chatMessage);
+		}
+	}
 }
